@@ -129,11 +129,6 @@ const uploadToS3 = async (day) => {
     s3Service.uploadDir(path, s3Bucket);
 }
 
-const removeDir = (day) => {
-    const dateFormatted = dateUtils.getDateString(day.format());
-    fileUtils.removeDir(`./storage/combined/${dateFormatted}`);
-}
-
 const delay = ms => new Promise(res => setTimeout(res, ms));
 
 (async () => {
@@ -153,7 +148,7 @@ const delay = ms => new Promise(res => setTimeout(res, ms));
             // get orders
             const params = buildParams(day, nextPage);
             const { data, page } = await orderService.getOrders(params);
-            logger.info(`processing page ${page.currentPage} of ${page.totalPages}`, params);
+            logger.info(`processing page ${page.currentPage} of ${page.totalPages} [${day.format()}]`, params);
             
             // heavy process
             await downloadInvoices(data);
