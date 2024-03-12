@@ -30,11 +30,15 @@ const removeDir = (folderPath) => {
 }
 
 const moveDir = (sourcePath, destinationPath) => {
+  const splitter = sourcePath.split('/');
+  const datePath = splitter.pop();
+  const reversedDatePath = datePath.split('-').reverse().join('-');
   ensureDirectoryExistence(destinationPath);
   const files = fs.readdirSync(sourcePath);
   for(const file of files) {
+    const filename = file.replace(/(\.[\w\d_-]+)$/i, '-' + reversedDatePath + '$1');
     const oldPath = path.join(sourcePath, file);
-    const newPath = path.join(destinationPath, file);
+    const newPath = path.join(destinationPath, filename);
     fs.renameSync(oldPath, newPath);
   }
   removeDir(sourcePath);

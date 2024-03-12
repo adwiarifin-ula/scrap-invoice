@@ -4,6 +4,7 @@ const DecompressZip = require('decompress-zip');
 const csvService = require('./service/csv.service');
 const orderService = require('./service/order.service');
 const userService = require('./service/user.service');
+const s3Service = require('./service/s3.service');
 const dateUtils = require('./utils/date.utils');
 const fileUtils = require('./utils/file.utils');
 const requestUtils = require('./utils/request.utils');
@@ -83,7 +84,7 @@ const downloadInvoices = async (orders) => {
 function downloadTimeline(order) {
     const dir = `./storage/timeline/${dateUtils.getDateString(order.createdAt)}`;
     fileUtils.ensureDirectoryExistence(dir);
-    const path = `${dir}/${order.id} - timeline.csv`;
+    const path = `${dir}/${order.id}-order-timeline.csv`;
     const mappedData = mappingUtils.mapTimelineData(order.result);
     csvService.writeCsv(path, mappedData);
 }
@@ -121,6 +122,20 @@ const refreshToken = async () => {
     process.env.REFRESH_TOKEN = tokens.body.refreshToken;
 }
 
+const uploadToS3 = async (day) => {
+    const dateFormatted = dateUtils.getDateString(day.format());
+    const path = `./storage/combined/${dateFormatted}`;
+    const s3Bucket = process.env.S3_BUCKET;
+    s3Service.uploadDir(path, s3Bucket);
+}
+
+const removeDir = (day) => {
+    const dateFormatted = dateUtils.getDateString(day.format());
+    fileUtils.removeDir(`./storage/combined/${dateFormatted}`);
+}
+
+const delay = ms => new Promise(res => setTimeout(res, ms));
+
 (async () => {
     const range = dateUtils.getDateRange();
     let firstRun = true;
@@ -147,9 +162,11 @@ const refreshToken = async () => {
             // iteration control
             nextPage = page.currentPage + 1;
             totalPage = page.totalPages;
-            // if (nextPage === 3) break;
+            if (nextPage === 2) break;
         } while(nextPage <= totalPage);
+        await delay(5000);
         combineFiles(day);
+        await uploadToS3(day);
         firstRun = false;
     }
 })();

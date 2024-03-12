@@ -1,54 +1,41 @@
-const AWS = require("aws-sdk");
+const fs = require('fs');
+const path = require('path');
+const { S3Client, PutObjectCommand } = require('@aws-sdk/client-s3');
 
-const uploadToS3 = async (bucket, data, filePath, awsConfig, expiryTime) => {
-  const params = {
-    Body: data,
-    Bucket: bucket,
-    Key: filePath,
-    ACL: "private",
-  };
+const uploadDir = function(s3Path, bucketName) {
+  let s3 = new S3Client();
 
-  await uploadInS3(params, awsConfig);
-  const presignedGetUrl = preSignedUrl(bucket, filePath, awsConfig, expiryTime);
-  console.log(`upload to s3 success, for file ${filePath}`);
-  return presignedGetUrl;
-};
-
-const uploadInS3 = async (params, awsConfig) => {
-  return new Promise((resolve, reject) => {
-    AWS.config.update({
-      region: awsConfig.region,
+  function walkSync(currentDirPath, callback) {
+    fs.readdirSync(currentDirPath).forEach(function (name) {
+      var filePath = path.join(currentDirPath, name);
+      var stat = fs.statSync(filePath);
+      if (stat.isFile()) {
+        callback(filePath, stat);
+      } else if (stat.isDirectory()) {
+        walkSync(filePath, callback);
+      }
     });
-    const s3 = new AWS.S3();
-    s3.upload(params, (err, data) => {
+  }
+
+  walkSync(s3Path, function(filePath, stat) {
+    let bucketPath = 'invoice/' + filePath.substring(s3Path.length-1);
+    let params = {
+      Bucket: bucketName, 
+      Key: bucketPath, 
+      Body: fs.readFileSync(filePath) 
+    };
+    const command = new PutObjectCommand(params);
+    s3.send(command, function(err, data) {
       if (err) {
-        reject(err);
+          console.log(err)
       } else {
-        resolve(data);
+          console.log('Successfully uploaded '+ bucketPath +' to ' + bucketName);
+          fs.rmSync(filePath);
       }
     });
   });
 };
 
-const preSignedUrl = (
-  bucket,
-  filePath,
-  awsConfig,
-  expiryTime,
-  operationType = "getObject"
-) => {
-  AWS.config.update({
-    region: awsConfig.region,
-  });
-  const s3 = new AWS.S3();
-  return s3.getSignedUrl(operationType, {
-    Bucket: bucket,
-    Key: filePath,
-    Expires: expiryTime ?? 60 * 12,
-  });
-};
-
 module.exports = {
-  uploadToS3,
-  preSignedUrl,
+  uploadDir,
 };
