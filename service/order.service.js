@@ -30,9 +30,12 @@ const getOrders = async (params) => {
         const result = await ulaClient
             .post('/orders-graphql')
             .send(query);
-        return result.body.data.adminOrdersV2;
+        const graphQLResult = result.body.data.adminOrdersV2;
+        if (graphQLResult == null) {
+            logger.info('orders graphql was null', { body: result.body, status: result.status });
+        }
     } catch (error) {
-        logger.error('error while getting orders', params);
+        logger.error(`error while getting orders :: status ${error.status} :: statusCode ${error.statusCode}`, params);
         return null;
     }
 }
