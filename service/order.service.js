@@ -34,6 +34,7 @@ const getOrders = async (params) => {
         if (graphQLResult == null) {
             logger.info('orders graphql was null', { body: result.body, status: result.status });
         }
+        return graphQLResult;
     } catch (error) {
         logger.error(`error while getting orders :: status ${error.status} :: statusCode ${error.statusCode}`, params);
         return null;
