@@ -22,7 +22,17 @@ function writeCsv(path, data) {
   stringifier.pipe(writableStream);
 }
 
+function appendCsv(path, data) {
+  // if (!fs.existsSync(path)) {
+  //   fs.mkdirSync(path, { recursive: true });
+  // }
+  stringify(data, (err, output) => {
+    fs.appendFileSync(path, output);
+  }); 
+}
+
 module.exports = {
   readCsv,
   writeCsv,
+  appendCsv,
 };

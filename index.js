@@ -147,7 +147,7 @@ const refreshToken = async () => {
             // iteration control
             nextPage = page.currentPage + 1;
             totalPage = page.totalPages;
-            if (nextPage === 3) break;
+            // if (nextPage === 3) break;
         } while(nextPage <= totalPage);
         combineFiles(day);
         firstRun = false;

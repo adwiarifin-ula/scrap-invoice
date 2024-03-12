@@ -1,5 +1,6 @@
 const { ulaClient } = require('../utils/request.utils');
 const { logger } = require('../utils/log.utils');
+const csvService = require('./csv.service');
 
 const getGraphQLQuery = (params) => {
     const query = `query {
@@ -43,6 +44,7 @@ const getInvoice = async (order) => {
             .post(`/orders/${order.id}/invoice`);
         result = response.body;
     } catch (error) {
+        csvService.appendCsv('errors/invoice.csv', [[order.id, order.status, order.createdAt]]);
         logger.error('error while getting invoice', order);
     }
     return {
@@ -58,6 +60,7 @@ const getTimeline = async (order) => {
             .get(`/orders/logs/${order.id}`);
         result = response.body;
     } catch (error) {
+        csvService.appendCsv('errors/timeline.csv', [[order.id, order.status, order.createdAt]]);
         logger.error('error while getting timeline', order);
     }
     return {
