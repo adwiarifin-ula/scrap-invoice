@@ -157,13 +157,18 @@ const delay = ms => new Promise(res => setTimeout(res, ms));
         let totalPage = 1;
         do {
             // refresh token
-            if (nextPage % 25 == 1) {
-                refreshToken();
+            if (nextPage % parseInt(process.env.REFRESH_TOKEN_INTERVAL) == 1) {
+                await refreshToken();
             }
 
             // get orders
             const params = buildParams(day, nextPage);
-            const { data, page } = await orderService.getOrders(params);
+            let orderResult = await orderService.getOrders(params);
+            if (!orderResult) {
+                // maybe got 401
+                await refreshToken();
+                orderResult = await orderService.getOrders(params);
+            }
             logger.info(`processing page ${page.currentPage} of ${page.totalPages} [${day.format()}]`, params);
             
             // heavy process
