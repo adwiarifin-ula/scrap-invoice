@@ -169,6 +169,7 @@ const delay = ms => new Promise(res => setTimeout(res, ms));
                 await refreshToken();
                 orderResult = await orderService.getOrders(params);
             }
+            const { data, page } = orderResult;
             logger.info(`processing page ${page.currentPage} of ${page.totalPages} [${day.format()}]`, params);
             
             // heavy process
