@@ -180,4 +180,7 @@ const delay = ms => new Promise(res => setTimeout(res, ms));
         await uploadToS3(day);
         firstRun = false;
     }
+
+    // exit gracefully
+    process.exit(0);
 })();
