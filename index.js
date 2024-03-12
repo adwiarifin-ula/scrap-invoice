@@ -112,10 +112,18 @@ const combineFiles = (day) => {
     const dateFormatted = dateUtils.getDateString(day.format());
     if (fileUtils.existsDir(`./storage/invoice/${dateFormatted}`)) {
         fileUtils.moveDir(`./storage/invoice/${dateFormatted}`, `./storage/combined/${dateFormatted}`);
+    } else {
+        logger.info(`Skipping moving invoice files for date ${dateFormatted}`);
+    }
+    if (fileUtils.existsDir(`./storage/timeline/${dateFormatted}`)) {
         fileUtils.moveDir(`./storage/timeline/${dateFormatted}`, `./storage/combined/${dateFormatted}`);
+    } else {
+        logger.info(`Skipping moving timeline files for date ${dateFormatted}`);
+    }
+    if (fileUtils.existsDir(`./storage/zippedInvoice/${dateFormatted}`)) {
         fileUtils.removeDir(`./storage/zippedInvoice/${dateFormatted}`);
     } else {
-        logger.info(`Skipping combine files for date ${dateFormatted}`);
+        logger.info(`Skipping remove zipped invoice files for date ${dateFormatted}`);
     }
 }
 
