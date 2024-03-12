@@ -2,6 +2,10 @@ const { writeFileSync, mkdirSync, existsSync } = require("fs");
 const fs = require('fs');
 const path = require('path');
 
+function existsDir(dirname) {
+  return existsSync(dirname);
+}
+
 function ensureDirectoryExistence(dirname) {
   if (existsSync(dirname)) {
     return true;
@@ -90,4 +94,5 @@ module.exports = {
   copyDir,
   removeDir,
   moveDir,
+  existsDir,
 };

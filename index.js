@@ -110,9 +110,11 @@ const downloadTimelines = async (orders) => {
 const combineFiles = (day) => {
     logger.info(`Copying invoice and timeline data`);
     const dateFormatted = dateUtils.getDateString(day.format());
-    fileUtils.moveDir(`./storage/invoice/${dateFormatted}`, `./storage/combined/${dateFormatted}`);
-    fileUtils.moveDir(`./storage/timeline/${dateFormatted}`, `./storage/combined/${dateFormatted}`);
-    fileUtils.removeDir(`./storage/zippedInvoice/${dateFormatted}`);
+    if (fileUtils.existsDir(`./storage/invoice/${dateFormatted}`)) {
+        fileUtils.moveDir(`./storage/invoice/${dateFormatted}`, `./storage/combined/${dateFormatted}`);
+        fileUtils.moveDir(`./storage/timeline/${dateFormatted}`, `./storage/combined/${dateFormatted}`);
+        fileUtils.removeDir(`./storage/zippedInvoice/${dateFormatted}`);
+    }
 }
 
 const refreshToken = async () => {
