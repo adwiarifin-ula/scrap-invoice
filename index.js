@@ -162,7 +162,7 @@ const delay = ms => new Promise(res => setTimeout(res, ms));
             // iteration control
             nextPage = page.currentPage + 1;
             totalPage = page.totalPages;
-            if (nextPage === 2) break;
+            // if (nextPage === 2) break;
         } while(nextPage <= totalPage);
         await delay(5000);
         combineFiles(day);
