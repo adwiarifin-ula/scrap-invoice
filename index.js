@@ -114,6 +114,8 @@ const combineFiles = (day) => {
         fileUtils.moveDir(`./storage/invoice/${dateFormatted}`, `./storage/combined/${dateFormatted}`);
         fileUtils.moveDir(`./storage/timeline/${dateFormatted}`, `./storage/combined/${dateFormatted}`);
         fileUtils.removeDir(`./storage/zippedInvoice/${dateFormatted}`);
+    } else {
+        logger.info(`Skipping combine files for date ${dateFormatted}`);
     }
 }
 
@@ -127,8 +129,12 @@ const refreshToken = async () => {
 const uploadToS3 = async (day) => {
     const dateFormatted = dateUtils.getDateString(day.format());
     const path = `./storage/combined/${dateFormatted}`;
-    const s3Bucket = process.env.S3_BUCKET;
-    s3Service.uploadDir(path, s3Bucket);
+    if (fileUtils.existsDir(path)) {
+        const s3Bucket = process.env.S3_BUCKET;
+        s3Service.uploadDir(path, s3Bucket);
+    } else {
+        logger.info(`Skipping upload to s3 for date ${dateFormatted}`);
+    }
 }
 
 const delay = ms => new Promise(res => setTimeout(res, ms));
