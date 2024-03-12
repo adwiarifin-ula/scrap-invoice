@@ -27,7 +27,7 @@ const getGraphQLQuery = (params) => {
 const getOrders = async (params) => {
     try {
         const query = getGraphQLQuery(params);
-        const result = await ulaClient
+        const result = await ulaClient()
             .post('/orders-graphql')
             .send(query);
         const graphQLResult = result.body.data.adminOrdersV2;
@@ -44,7 +44,7 @@ const getOrders = async (params) => {
 const getInvoice = async (order) => {
     let result = null;
     try {
-        const response = await ulaClient
+        const response = await ulaClient()
             .post(`/orders/${order.id}/invoice`);
         result = response.body;
     } catch (error) {
@@ -60,7 +60,7 @@ const getInvoice = async (order) => {
 const getTimeline = async (order) => {
     let result = null;
     try {
-        const response = await ulaClient
+        const response = await ulaClient()
             .get(`/orders/logs/${order.id}`);
         result = response.body;
     } catch (error) {

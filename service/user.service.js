@@ -3,7 +3,7 @@ const { logger } = require('../utils/log.utils');
 
 const refreshToken = async () => {
     try {
-        return ulaClient
+        return ulaClient()
             .post('/v1/users/refreshToken')
             .send({
                 refreshToken: process.env.REFRESH_TOKEN,
