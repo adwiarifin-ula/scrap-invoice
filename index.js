@@ -164,7 +164,7 @@ const delay = ms => new Promise(res => setTimeout(res, ms));
             // get orders
             const params = buildParams(day, nextPage);
             let orderResult = await orderService.getOrders(params);
-            if (!orderResult) {
+            while (!orderResult) {
                 // maybe got 401
                 await refreshToken();
                 orderResult = await orderService.getOrders(params);
