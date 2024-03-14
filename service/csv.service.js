@@ -2,24 +2,18 @@ const fs = require("fs");
 const { parse } = require("csv-parse");
 const { stringify } = require("csv-stringify");
 
-function readCsv(path, dataFunction) {
+function readCsv(path, dataFunction, endFunction, errorFunction) {
   fs.createReadStream(path)
     .pipe(parse({ delimiter: ",", from_line: 2 }))
     .on("data", dataFunction)
-    .on("end", function () {
-      console.log("finished");
-    })
-    .on("error", function (error) {
-      console.log(error.message);
-    });
+    .on("end", endFunction)
+    .on("error", errorFunction);
 }
 
 function writeCsv(path, data) {
-  const columns = Object.keys(data[0]);
-  const writableStream = fs.createWriteStream(path);
-  const stringifier = stringify({ header: true, columns: columns });
-  data.forEach(d => stringifier.write(d));
-  stringifier.pipe(writableStream);
+  stringify(data, (err, output) => {
+    fs.writeFileSync(path, output);
+  }); 
 }
 
 function appendCsv(path, data) {

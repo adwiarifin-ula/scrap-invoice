@@ -11,6 +11,15 @@ const mapTimelineData = (timelines) => {
     }));
 }
 
+const mapCsvColumnToInvoiceData = (col) => {
+    return {
+        id: col[0],
+        status: col[1],
+        createdAt: col[2],
+    }
+}
+
 module.exports = {
-    mapTimelineData
+    mapTimelineData,
+    mapCsvColumnToInvoiceData,
 }

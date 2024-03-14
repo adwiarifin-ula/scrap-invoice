@@ -95,6 +95,10 @@ const copyDir = (src, dest, callback) => {
   });
 };
 
+const copyFile = (src, dest) => {
+  fs.createReadStream(src).pipe(fs.createWriteStream(dest));
+}
+
 module.exports = {
   storeJson,
   ensureDirectoryExistence,
@@ -103,4 +107,5 @@ module.exports = {
   removeDirIfEmpty,
   moveDir,
   existsDir,
+  copyFile,
 };

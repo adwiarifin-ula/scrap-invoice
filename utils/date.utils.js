@@ -10,6 +10,10 @@ const getDateRange = () => {
     return range;
 }
 
+const getCurDateString = () => {
+    return moment.utc().format().replace('-', '').replace(':', '');
+}
+
 const getDateString = (originalDateString) => {
     const date = moment.utc(originalDateString);
     return date.format('YYYY-MM-DD');
@@ -25,4 +29,5 @@ module.exports = {
     getDateRange,
     getDateString,
     getReadableDateTime,
+    getCurDateString,
 }

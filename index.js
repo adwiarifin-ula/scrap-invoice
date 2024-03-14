@@ -52,7 +52,7 @@ const downloadInvoice = (order) => {
 }
 
 const downloadInvoices = async (orders) => {
-    const excludedStatus = ['CANCELLED', 'REJECTED', 'FAILED_DELIVERY'];
+    const excludedStatus = ['CANCELLED', 'REJECTED', 'FAILED_DELIVERY', 'PARTIAL_DELIVERED'];
     const promises = [];
     for (const order of orders) {
         if (!excludedStatus.includes(order.status)) {
