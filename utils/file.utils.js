@@ -33,6 +33,13 @@ const removeDir = (folderPath) => {
   });
 }
 
+const removeDirIfEmpty = (folderPath) => {
+  const files = fs.readdirSync(folderPath);
+  if (files.length === 0) {
+    fs.rmSync(folderPath);
+  }
+}
+
 const moveDir = (sourcePath, destinationPath) => {
   const splitter = sourcePath.split('/');
   const datePath = splitter.pop();
@@ -93,6 +100,7 @@ module.exports = {
   ensureDirectoryExistence,
   copyDir,
   removeDir,
+  removeDirIfEmpty,
   moveDir,
   existsDir,
 };

@@ -140,6 +140,7 @@ const uploadToS3 = async (day) => {
     if (fileUtils.existsDir(path)) {
         const s3Bucket = process.env.S3_BUCKET;
         s3Service.uploadDir(path, s3Bucket);
+        fileUtils.removeDirIfEmpty(path);
     } else {
         logger.info(`Skipping upload to s3 for date ${dateFormatted}`);
     }
@@ -188,5 +189,5 @@ const delay = ms => new Promise(res => setTimeout(res, ms));
     }
 
     // exit gracefully
-    process.exit(0);
+    // process.exit(0);
 })();
