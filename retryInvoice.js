@@ -70,11 +70,15 @@ const downloadZippedFile = (order) => {
 }
 
 const downloadInvoice = async (order) => {
-  logger.info(`Downloading invoice for ${order.id} [${order.createdAt}] and last status was ${order.status}`);
-  const zippedPath = await downloadZippedFile(order);
-  await extractZippedFile(order, zippedPath);
-  await uploadToS3(order);
-  logger.info(`Invoice for ${order.id} downloaded`);
+  try {
+    logger.info(`Downloading invoice for ${order.id} [${order.createdAt}] and last status was ${order.status}`);
+    const zippedPath = await downloadZippedFile(order);
+    await extractZippedFile(order, zippedPath);
+    await uploadToS3(order);
+    logger.info(`Invoice for ${order.id} downloaded`);
+  } catch(err) {
+    logger.error(`Got error while download invoice :: ${err}`);
+  }
 }
 
 const refreshToken = async () => {
