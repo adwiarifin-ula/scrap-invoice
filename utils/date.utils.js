@@ -11,7 +11,7 @@ const getDateRange = () => {
 }
 
 const getCurDateString = () => {
-    return moment.utc().format().replace('-', '').replace(':', '');
+    return moment.utc().format().replace(/-/g, '').replace(/:/g, '');
 }
 
 const getDateString = (originalDateString) => {

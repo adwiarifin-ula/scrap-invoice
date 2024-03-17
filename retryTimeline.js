@@ -9,14 +9,13 @@ const orderService = require('./service/order.service');
 const userService = require('./service/user.service');
 const s3Service = require('./service/s3.service');
 const fileUtils = require('./utils/file.utils');
-const requestUtils = require('./utils/request.utils');
 const dateUtils = require('./utils/date.utils');
 const { logger } = require('./utils/log.utils');
 
 const delay = ms => new Promise(res => setTimeout(res, ms));
 
 const readCsv = async () => {
-  const path = "./errors/invoice.csv";
+  const path = "./errors/timeline.csv";
   logger.info(`Reading csv ${path}`);
   const csvOriginal = await csvService.processFile(path);
   logger.info(`Mapping csv ${path}`);
@@ -25,59 +24,24 @@ const readCsv = async () => {
 
 const clearCsv = () => {
   const header = [['order_id', 'order_status', 'order_at']];
-  const path = './errors/invoice.csv';
+  const path = './errors/timeline.csv';
   logger.info(`Clearing csv...`);
   csvService.writeCsv(path, header);
   logger.info(`CSV cleared`);
 }
 
-const extractZippedFile = (order, zipPath) => {
-  return new Promise((resolve, reject) => {
-    const dateFormatted = dateUtils.getDateString(order.createdAt);
-    const dir = `storage/invoice/retry/${dateFormatted}`;
-    const unzipper = new DecompressZip(zipPath);
-    unzipper.on('progress', (fileIndex, fileCount) => {
-      logger.info(`Extracted file ${fileIndex + 1} of ${fileCount} for ${order.id}`);
-    });
-    unzipper.on('extract', () => {
-      logger.info(`Invoice for ${order.id} has been extracted`);
-      fileUtils.moveDir(dir, `./storage/combined/retry`);
-      fs.rmSync(zipPath);
-      resolve();
-    });
-    unzipper.on('error', (err) => {
-      reject(err);
-    });
-    unzipper.extract({
-      path: dir,
-      strip: 1,
-    });
-  });
-}
-
-const downloadZippedFile = (order) => {
-  return new Promise((resolve) => {
-    const dir = `./storage/zippedInvoice/retry`;
-    const path = `${dir}/${order.id}.zip`;
-    const invoiceStream = fs.createWriteStream(path);
-    invoiceStream.on('finish', () => {
-      resolve(path);
-    });
-    requestUtils.defaultClient
-      .get(order.result.url)
-      .pipe(invoiceStream);
-  });
-}
-
-const downloadInvoice = async (order) => {
+const downloadTimeline = async (order) => {
   try {
-    logger.info(`Downloading invoice for ${order.id} [${order.createdAt}] and last status was ${order.status}`);
-    const zippedPath = await downloadZippedFile(order);
-    await extractZippedFile(order, zippedPath);
+    logger.info(`Downloading timeline for ${order.id} [${order.createdAt}] and last status was ${order.status}`);
+    const dir = `./storage/timeline/retry`;
+    fileUtils.ensureDirectoryExistence(dir);
+    const path = `${dir}/${order.id}-order-timeline-${dateUtils.getDateString(order.createdAt)}.csv`;
+    const mappedData = mappingUtils.mapTimelineData(order.result);
+    csvService.writeCsv(path, mappedData);
     await uploadToS3(order);
-    logger.info(`Invoice for ${order.id} downloaded`);
+    logger.info(`Timeline for ${order.id} downloaded`);
   } catch(err) {
-    logger.error(`Got error while download invoice :: ${err}`);
+    logger.error(`Got error while download timeline :: ${err}`);
   }
 }
 
@@ -88,36 +52,37 @@ const refreshToken = async () => {
   process.env.REFRESH_TOKEN = tokens.body.refreshToken;
 }
 
-const downloadInvoices = async (orders) => {
-  const excludedStatus = ['CANCELLED', 'REJECTED', 'FAILED_DELIVERY', 'PARTIAL_DELIVERED'];
-  const invoicePromises = [];
+const downloadTimelines = async (orders) => {
+  const excludedStatus = [];
+  const timelinePromises = [];
   for (const order of orders) {
     if (!excludedStatus.includes(order.status)) {
-      invoicePromises.push(orderService.getInvoice(order));
+      timelinePromises.push(orderService.getTimeline(order));
     }
   }
 
-  logger.info(`awaiting getInvoice :: ${invoicePromises.length} to be completed`);
-  const results = await Promise.all(invoicePromises);
+  logger.info(`awaiting getTimeline :: ${timelinePromises.length} to be completed`);
+  const results = await Promise.all(timelinePromises);
 
   const downloadPromises = [];
   for (const order of results) {
     if (order.result && order.result.url) {
-      downloadPromises.push(downloadInvoice(order));
+      downloadPromises.push(downloadTimeline(order));
     } else {
-      logger.info(`Invoice for ${order.id} [${order.createdAt}] was not exists because status ${order.status}`);
+      logger.info(`Timeline for ${order.id} [${order.createdAt}] was not exists because status ${order.status}`);
     }
   }
 
-  logger.info(`awaiting downloadInvoice :: ${downloadPromises.length} to be completed`);
+  logger.info(`awaiting downloadTimeline :: ${downloadPromises.length} to be completed`);
   await Promise.all(downloadPromises);
 }
 
 const uploadToS3 = async (order) => {
   const s3Bucket = process.env.S3_BUCKET;
-  const pattern = `./storage/combined/retry/${order.id}*.pdf`;
+  const pattern = `./storage/combined/retry/${order.id}*.csv`;
   const files = await glob(pattern);
   for (const file of files) {
+    logger.info(`Uploading timeline ${order.id} to s3...`);
     await s3Service.uploadFile(file, s3Bucket);
     fs.rmSync(file);
   }
@@ -125,7 +90,7 @@ const uploadToS3 = async (order) => {
 
 (async () => {
   // backup
-  fileUtils.copyFile('./errors/invoice.csv', `./errors/invoice_${dateUtils.getCurDateString()}.csv`);
+  fileUtils.copyFile('./errors/timeline.csv', `./errors/timeline_${dateUtils.getCurDateString()}.csv`);
 
   // read input
   const data = await readCsv();
@@ -135,7 +100,7 @@ const uploadToS3 = async (order) => {
   clearCsv();
 
   // ensure directory exists
-  fileUtils.ensureDirectoryExistence(`./storage/zippedInvoice/retry`);
+  fileUtils.ensureDirectoryExistence(`./storage/timeline/retry`);
 
   // heavy process
   const chunkSize = parseInt(process.env.PER_PAGE || 10);
@@ -145,8 +110,8 @@ const uploadToS3 = async (order) => {
     if (index % parseInt(process.env.REFRESH_TOKEN_INTERVAL) == 0) {
       await refreshToken();
     }
-    await downloadInvoices(orders);
-    // break;
+    await downloadTimelines(orders);
+    break;
   }
 
   // gracefull exit
