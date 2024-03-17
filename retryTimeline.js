@@ -111,7 +111,7 @@ const uploadToS3 = async (order) => {
       await refreshToken();
     }
     await downloadTimelines(orders);
-    break;
+    // break;
   }
 
   // gracefull exit
