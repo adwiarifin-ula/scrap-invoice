@@ -36,6 +36,31 @@ const uploadDir = function(s3Path, bucketName) {
   });
 };
 
+const uploadFile = (filePath, bucketName) => {
+  return new Promise((resolve, reject) => {
+    const s3 = new S3Client();
+    const part = filePath.split('/');
+    const lastPart = part.pop();
+    const bucketPath = 'invoice/' + lastPart;
+    const params = {
+      Bucket: bucketName, 
+      Key: bucketPath, 
+      Body: fs.readFileSync(filePath) 
+    };
+    const command = new PutObjectCommand(params);
+    s3.send(command, function(err, data) {
+      if (err) {
+          reject(err);
+      } else {
+          console.log('Successfully uploaded '+ bucketPath +' to ' + bucketName);
+          // fs.rmSync(filePath);
+          resolve();
+      }
+    });
+  });
+}
+
 module.exports = {
   uploadDir,
+  uploadFile,
 };

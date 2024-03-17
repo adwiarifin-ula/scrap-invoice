@@ -52,7 +52,7 @@ const moveDir = (sourcePath, destinationPath) => {
     const newPath = path.join(destinationPath, filename);
     fs.renameSync(oldPath, newPath);
   }
-  removeDir(sourcePath);
+  // removeDir(sourcePath);
 }
 
 const copyDir = (src, dest, callback) => {

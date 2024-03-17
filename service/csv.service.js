@@ -10,6 +10,18 @@ function readCsv(path, dataFunction, endFunction, errorFunction) {
     .on("error", errorFunction);
 }
 
+const processFile = async (path) => {
+  const records = [];
+  const parser = fs
+    .createReadStream(path)
+    .pipe(parse({ delimiter: ",", from_line: 2 }));
+  for await (const record of parser) {
+    // Work with each record
+    records.push(record);
+  }
+  return records;
+};
+
 function writeCsv(path, data) {
   stringify(data, (err, output) => {
     fs.writeFileSync(path, output);
@@ -29,4 +41,5 @@ module.exports = {
   readCsv,
   writeCsv,
   appendCsv,
+  processFile,
 };
