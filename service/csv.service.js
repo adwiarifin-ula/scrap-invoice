@@ -23,15 +23,12 @@ const processFile = async (path) => {
 };
 
 function writeCsv(path, data) {
-  stringify(data, (err, output) => {
+  stringify(data, { header: true }, (err, output) => {
     fs.writeFileSync(path, output);
   }); 
 }
 
 function appendCsv(path, data) {
-  // if (!fs.existsSync(path)) {
-  //   fs.mkdirSync(path, { recursive: true });
-  // }
   stringify(data, (err, output) => {
     fs.appendFileSync(path, output);
   }); 

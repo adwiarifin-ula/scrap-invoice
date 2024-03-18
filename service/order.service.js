@@ -48,7 +48,23 @@ const getInvoice = async (order) => {
             .post(`/orders/${order.id}/invoice`);
         result = response.body;
     } catch (error) {
-        csvService.appendCsv('errors/invoice.csv', [[order.id, order.status, order.createdAt]]);
+        csvService.appendCsv('errors/invoice.csv', [order]);
+        logger.error('error while getting invoice', order);
+    }
+    return {
+        ...order,
+        result,
+    }
+}
+
+const getInvoiceCount = async (order) => {
+    let result = null;
+    try {
+        const response = await ulaClient()
+            .post(`/orders/${order.id}/invoice/count`);
+        result = response.body;
+    } catch (error) {
+        csvService.appendCsv('errors/invoice_count.csv', [order]);
         logger.error('error while getting invoice', order);
     }
     return {
@@ -64,7 +80,7 @@ const getTimeline = async (order) => {
             .get(`/orders/logs/${order.id}`);
         result = response.body;
     } catch (error) {
-        csvService.appendCsv('errors/timeline.csv', [[order.id, order.status, order.createdAt]]);
+        csvService.appendCsv('errors/timeline.csv', [order]);
         logger.error('error while getting timeline', order);
     }
     return {
@@ -76,5 +92,6 @@ const getTimeline = async (order) => {
 module.exports = {
     getOrders,
     getInvoice,
+    getInvoiceCount,
     getTimeline,
 }

@@ -19,6 +19,11 @@ const getDateString = (originalDateString) => {
     return date.format('YYYY-MM-DD');
 }
 
+const getMonthString = (originalDateString) => {
+    const date = moment.utc(originalDateString);
+    return date.format('YYYY-MM');
+}
+
 const getReadableDateTime = (originalDateString) => {
     if (originalDateString === 'NA') return '';
     const format = 'ddd MMM DD YYYY HH:mm:ss [GMT]ZZ [(]zz[)]';
@@ -28,6 +33,7 @@ const getReadableDateTime = (originalDateString) => {
 module.exports = {
     getDateRange,
     getDateString,
+    getMonthString,
     getReadableDateTime,
     getCurDateString,
 }
