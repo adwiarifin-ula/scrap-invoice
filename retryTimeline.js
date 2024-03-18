@@ -66,7 +66,7 @@ const downloadTimelines = async (orders) => {
 
   const downloadPromises = [];
   for (const order of results) {
-    if (order.result && order.result.url) {
+    if (order.result) {
       downloadPromises.push(downloadTimeline(order));
     } else {
       logger.info(`Timeline for ${order.id} [${order.createdAt}] was not exists because status ${order.status}`);
