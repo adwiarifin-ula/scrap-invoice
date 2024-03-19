@@ -76,6 +76,7 @@ const accumulateSummary = (summariesMap, summedRows) => {
         let summariesMap = new Map();
         for (let i = 0; i < files.length; i++) {
             const file = files[i];
+            console.log(`processing file ${file}`);
             const rows = await csvService.readCsvAsync(file);
             const summedRows = getSummedRows(file, rows);
             summariesMap = accumulateSummary(summariesMap, summedRows);
@@ -83,6 +84,7 @@ const accumulateSummary = (summariesMap, summedRows) => {
             const month = getMonth(file);
             if (currentMonth !== month || i == files.length - 1) {
                 // write summary
+                console.log(`writing csv file ${month}.csv`);
                 const summaryDir = `./storage/summary`;
                 fileUtils.ensureDirectoryExistence(summaryDir);
                 const summaryPath = `${summaryDir}/${month}.csv`;
