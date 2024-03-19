@@ -99,6 +99,21 @@ const copyFile = (src, dest) => {
   fs.createReadStream(src).pipe(fs.createWriteStream(dest));
 }
 
+const getDirectoryContents = (currentDirPath, type) => {
+  const contents = [];
+  fs.readdirSync(currentDirPath).forEach(function (name) {
+    var filePath = path.join(currentDirPath, name);
+    var stat = fs.statSync(filePath);
+    if (type === 'directory' && stat.isDirectory()) {
+      contents.push(filePath);
+    }
+    if (type === 'file' && stat.isFile()) {
+      contents.push(filePath);
+    }
+  });
+  return contents;
+}
+
 module.exports = {
   storeJson,
   ensureDirectoryExistence,
@@ -108,4 +123,5 @@ module.exports = {
   moveDir,
   existsDir,
   copyFile,
+  getDirectoryContents,
 };

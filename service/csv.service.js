@@ -10,6 +10,20 @@ function readCsv(path, dataFunction, endFunction, errorFunction) {
     .on("error", errorFunction);
 }
 
+const readCsvAsync = async (path) => {
+  const records = [];
+  const parser = fs
+    .createReadStream(path)
+    .pipe(parse({
+      columns: true,
+      skip_empty_lines: true,
+    }));
+  for await (const record of parser) {
+    records.push(record);
+  }
+  return records;
+}
+
 const processFile = async (path) => {
   const records = [];
   const parser = fs
@@ -36,6 +50,7 @@ function appendCsv(path, data) {
 
 module.exports = {
   readCsv,
+  readCsvAsync,
   writeCsv,
   appendCsv,
   processFile,
