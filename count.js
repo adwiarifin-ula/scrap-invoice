@@ -129,6 +129,6 @@ const writeCounts = (counts, page) => {
     }
 
     // exit gracefully
-    await delay(1000);
-    process.exit(0);
+    // await delay(1000);
+    // process.exit(0);
 })();
