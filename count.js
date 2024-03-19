@@ -9,6 +9,8 @@ const dateUtils = require('./utils/date.utils');
 const fileUtils = require('./utils/file.utils');
 const { logger } = require('./utils/log.utils');
 
+const delay = ms => new Promise(res => setTimeout(res, ms));
+
 const buildParams = (date, page) => {
     const perPage = parseInt(process.env.PER_PAGE);
     const localDate = date.clone();
@@ -127,5 +129,6 @@ const writeCounts = (counts, page) => {
     }
 
     // exit gracefully
+    await delay(1000);
     process.exit(0);
 })();
