@@ -154,7 +154,7 @@ const delay = ms => new Promise(res => setTimeout(res, ms));
     for (let day of range.by('day')) {
         // process daily
         logger.info(`processing date of ${day.format()}`);
-        let nextPage = firstRun ? process.env.START_PAGE : 1;
+        let nextPage = firstRun ? process.env.START_PAGE : process.env.START_PAGE;
         let totalPage = 1;
         do {
             // refresh token
