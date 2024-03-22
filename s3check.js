@@ -1,4 +1,7 @@
 require('dotenv').config();
+const fs = require('fs');
+const DecompressZip = require('decompress-zip');
+const { glob } = require('glob');
 const csvService = require('./service/csv.service');
 const orderService = require('./service/order.service');
 const userService = require('./service/user.service');
@@ -6,6 +9,7 @@ const s3Service = require('./service/s3.service');
 const dateUtils = require('./utils/date.utils');
 const fileUtils = require('./utils/file.utils');
 const mappingUtils = require('./utils/mapping.utils');
+const requestUtils = require('./utils/request.utils');
 const { logger } = require('./utils/log.utils');
 
 const buildParams = (date, page) => {
@@ -132,7 +136,7 @@ const checkOnS3 = async (orders) => {
         if (invoiceFiles.length > 0) {
             logger.info(`succesfully found ${invoiceFiles.length} invoice file on s3 for ${order.id} ${invoiceFiles.join(',')}`);
         } else {
-            const excludedStatus = ['CANCELLED', 'REJECTED', 'FAILED_DELIVERY', 'PARTIAL_DELIVERED'];
+            const excludedStatus = ['CANCELLED'];
             const needRedownload = !excludedStatus.includes(order.status);
             logger.info(`failed found invoice file on s3 for ${order.id}, because status ${order.status}, ${needRedownload ? 'proceeding download' : 'skipping download'}`);
             if (needRedownload) {
@@ -210,6 +214,9 @@ const writeCounts = (counts, page) => {
 }
 
 (async () => {
+    // ensure directory exists
+    fileUtils.ensureDirectoryExistence(`./storage/zippedInvoice/checker`);
+
     const range = dateUtils.getDateRange();
     let firstRun = true;
     for (let day of range.by('day')) {
