@@ -66,16 +66,18 @@ const listFiles = async (prefix, bucketName) => {
     const client = new S3Client();
     const params = {
       Bucket: bucketName,
-      // MaxKeys: 2,
       Delimiter: '/',
       Prefix: path + prefix,
     }
     const command = new ListObjectsV2Command(params);
     const data = await client.send(command);
-    logger.info('Contents' + JSON.stringify(data.Contents));
+    if (!data.Contents) {
+      return [];
+    }
     return data.Contents.map(e => e.Key.replace(path, ''));
-  } catch {
-
+  } catch (err) {
+    console.error(err);
+    return [];
   }
 }
 
