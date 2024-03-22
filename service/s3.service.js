@@ -1,6 +1,6 @@
 const fs = require('fs');
 const path = require('path');
-const { S3Client, PutObjectCommand } = require('@aws-sdk/client-s3');
+const { S3Client, PutObjectCommand, ListObjectsV2Command } = require('@aws-sdk/client-s3');
 
 const uploadDir = function(s3Path, bucketName) {
   let s3 = new S3Client();
@@ -60,7 +60,26 @@ const uploadFile = (filePath, bucketName) => {
   });
 }
 
+const listFiles = async (prefix, bucketName) => {
+  try {
+    const path = 'invoice/';
+    const client = new S3Client();
+    const params = {
+      Bucket: bucketName,
+      // MaxKeys: 2,
+      Delimiter: '/',
+      Prefix: path + prefix,
+    }
+    const command = new ListObjectsV2Command(params);
+    const data = await client.send(command);
+    return data.Contents.map(e => e.Key.replace(path, ''));
+  } catch {
+
+  }
+}
+
 module.exports = {
   uploadDir,
   uploadFile,
+  listFiles,
 };

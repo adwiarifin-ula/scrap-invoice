@@ -37,7 +37,8 @@ const processFile = async (path) => {
 };
 
 function writeCsv(path, data) {
-  stringify(data, { header: true }, (err, output) => {
+  let headerOption = !Array.isArray(data[0]);
+  stringify(data, { header: headerOption }, (err, output) => {
     fs.writeFileSync(path, output);
   }); 
 }
