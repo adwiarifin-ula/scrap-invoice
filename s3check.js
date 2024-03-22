@@ -136,7 +136,7 @@ const checkOnS3 = async (orders) => {
             const needRedownload = !excludedStatus.includes(order.status);
             logger.info(`failed found invoice file on s3 for ${order.id}, because status ${order.status}, ${needRedownload ? 'proceeding download' : 'skipping download'}`);
             if (needRedownload) {
-                const orderResult = orderService.getInvoice(order);
+                const orderResult = await orderService.getInvoice(order);
                 if (orderResult.result && orderResult.result.url) {
                     await downloadInvoice(orderResult);
                 } else {
@@ -149,7 +149,7 @@ const checkOnS3 = async (orders) => {
             logger.info(`succesfully found ${timelineFiles.length} timeline file on s3 for ${order.id} ${timelineFiles.join(',')}`);
         } else {
             logger.info(`failed found timeline file on s3 for ${order.id}`);
-            const timelineResult = orderService.getTimeline(order);
+            const timelineResult = await orderService.getTimeline(order);
             if (timelineResult.result) {
                 await downloadTimeline(timelineResult);
             } else {
