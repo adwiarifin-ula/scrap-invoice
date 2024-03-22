@@ -72,6 +72,7 @@ const listFiles = async (prefix, bucketName) => {
     }
     const command = new ListObjectsV2Command(params);
     const data = await client.send(command);
+    logger.info('Contents' + JSON.stringify(data.Contents));
     return data.Contents.map(e => e.Key.replace(path, ''));
   } catch {
 
