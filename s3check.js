@@ -26,7 +26,7 @@ const buildParams = (date, page) => {
 const downloadTimeline = async (order) => {
     try {
         logger.info(`Downloading timeline for ${order.id} [${order.createdAt}] and last status was ${order.status}`);
-        const dir = `./storage/timeline/checker`;
+        const dir = `./storage/combined/checker`;
         fileUtils.ensureDirectoryExistence(dir);
         const path = `${dir}/${order.id}-order-timeline-${dateUtils.getDateString(order.createdAt)}.csv`;
         const mappedData = mappingUtils.mapTimelineData(order.result);
@@ -150,7 +150,7 @@ const checkOnS3 = async (orders) => {
         }
 
         if (timelineFiles.length > 0) {
-            logger.info(`succesfully found ${timelineFiles.length} timeline file on s3 for ${order.id} ${timelineFiles.join(',')}`);
+            logger.info(`succesfully found ${timelineFiles.length} timeline file on s3 for ${order.id} ${timelineFiles.join(',')}, proceeding download`);
         } else {
             logger.info(`failed found timeline file on s3 for ${order.id}`);
             const timelineResult = await orderService.getTimeline(order);
