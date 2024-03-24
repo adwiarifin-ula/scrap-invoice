@@ -207,7 +207,7 @@ const writeCounts = (counts, page) => {
         const monthString = dateUtils.getMonthString(firstCount.createdAt);
         const dateString = dateUtils.getDateString(firstCount.createdAt);
         const dir = `./storage/count/${monthString}`;
-        const filePath = `${dir}/${dateString}-pt-${String(page).padStart(3, '0')}.csv`;
+        const filePath = `${dir}/${dateString}-pt-${String(page).padStart(6, '0')}.csv`;
         fileUtils.ensureDirectoryExistence(dir);
         csvService.writeCsv(filePath, counts);
     }
