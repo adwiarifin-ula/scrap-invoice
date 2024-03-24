@@ -1,3 +1,4 @@
+require('dotenv').config();
 const csvService = require('./service/csv.service');
 const fileUtils = require('./utils/file.utils');
 const { logger } = require('./utils/log.utils');
