@@ -17,7 +17,7 @@ const buildParams = (date, page) => {
     const localDate = date.clone();
     return {
         startDate: localDate.format(),
-        endDate: localDate.add(1, 'day').format(),
+        endDate: localDate.endOf('day').format(),
         offset: (page - 1) * perPage,
         limit: perPage,
     }
