@@ -84,7 +84,7 @@ const accumulateSummary = (summariesMap, summedRows) => {
             // const month = getMonth(file);
             // if (currentMonth !== month || i == files.length - 1) {
                 // write summary
-                console.log(`writing csv file ${month}.csv`);
+                console.log(`writing csv file ${process.env.CLOUDWATCH_LOG_NAME}.csv`);
                 const summaryDir = `./storage/summary`;
                 fileUtils.ensureDirectoryExistence(summaryDir);
                 const summaryPath = `${summaryDir}/${process.env.CLOUDWATCH_LOG_NAME}.csv`;
