@@ -71,10 +71,11 @@ const accumulateSummary = (summariesMap, summedRows) => {
 
 (async () => {
     const directories = fileUtils.getDirectoryContents('./storage/count', 'directory');
+    let summariesMap = new Map();
     for (const directory of directories) {
         const files = fileUtils.getDirectoryContents(directory, 'file');
         // let currentMonth = '';
-        let summariesMap = new Map();
+        
         for (let i = 0; i < files.length; i++) {
             const file = files[i];
             console.log(`processing file ${file}`);
@@ -82,18 +83,12 @@ const accumulateSummary = (summariesMap, summedRows) => {
             const summedRows = getSummedRows(file, rows);
             summariesMap = accumulateSummary(summariesMap, summedRows);
         }
-            // const month = getMonth(file);
-            // if (currentMonth !== month || i == files.length - 1) {
-                // write summary
-                console.log(`writing csv file ${process.env.CLOUDWATCH_LOG_NAME}.csv`);
-                const summaryDir = `./storage/summary`;
-                fileUtils.ensureDirectoryExistence(summaryDir);
-                const summaryPath = `${summaryDir}/${process.env.CLOUDWATCH_LOG_NAME}.csv`;
-                const summaries = [...summariesMap.values()];
-                csvService.writeCsv(summaryPath, summaries);
-                // currentMonth = month;
-                // summariesMap = new Map();
-            // }
-        // }
     }
+
+    console.log(`writing csv file ${process.env.CLOUDWATCH_LOG_NAME}.csv`);
+    const summaryDir = `./storage/summary`;
+    fileUtils.ensureDirectoryExistence(summaryDir);
+    const summaryPath = `${summaryDir}/${process.env.CLOUDWATCH_LOG_NAME}.csv`;
+    const summaries = [...summariesMap.values()];
+    csvService.writeCsv(summaryPath, summaries);
 })();
