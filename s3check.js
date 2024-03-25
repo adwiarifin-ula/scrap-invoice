@@ -150,9 +150,9 @@ const checkOnS3 = async (orders) => {
         }
 
         if (timelineFiles.length > 0) {
-            logger.info(`succesfully found ${timelineFiles.length} timeline file on s3 for ${order.id} ${timelineFiles.join(',')}, proceeding download`);
+            logger.info(`succesfully found ${timelineFiles.length} timeline file on s3 for ${order.id} ${timelineFiles.join(',')}`);
         } else {
-            logger.info(`failed found timeline file on s3 for ${order.id}`);
+            logger.info(`failed found timeline file on s3 for ${order.id}, proceeding download`);
             const timelineResult = await orderService.getTimeline(order);
             if (timelineResult.result) {
                 await downloadTimeline(timelineResult);
@@ -207,7 +207,7 @@ const writeCounts = (counts, page) => {
         const monthString = dateUtils.getMonthString(firstCount.createdAt);
         const dateString = dateUtils.getDateString(firstCount.createdAt);
         const dir = `./storage/count/${monthString}`;
-        const filePath = `${dir}/${dateString}-pt-${String(page).padStart(6, '0')}.csv`;
+        const filePath = `${dir}/${dateString}-pt-${String(page).padStart(3, '0')}.csv`;
         fileUtils.ensureDirectoryExistence(dir);
         csvService.writeCsv(filePath, counts);
     }
@@ -219,7 +219,10 @@ const writeCounts = (counts, page) => {
 
     const range = dateUtils.getDateRange();
     let firstRun = true;
-    for (let day of range.by('day')) {
+    const dates = process.env.DATES.split(',');
+    for (let date of dates) {
+        const day = dateUtils.momentObject(date);
+
         // process daily
         logger.info(`processing date of ${day.format()}`);
         let nextPage = firstRun ? process.env.START_PAGE : 1;

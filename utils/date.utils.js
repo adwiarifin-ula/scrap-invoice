@@ -10,6 +10,10 @@ const getDateRange = () => {
     return range;
 }
 
+const momentObject = (date) => {
+    return moment.utc(date);
+}
+
 const getCurDateString = () => {
     return moment.utc().format().replace(/-/g, '').replace(/:/g, '');
 }
@@ -36,4 +40,5 @@ module.exports = {
     getMonthString,
     getReadableDateTime,
     getCurDateString,
+    momentObject,
 }
